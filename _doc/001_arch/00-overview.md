@@ -23,8 +23,8 @@
 ## 2. 模块与依赖方向
 
 ```
-z-biz-security/
-├── z-biz-security-core/
+z-security/
+├── z-security-core/
 │   ├── domain/    SecurityPolicy · SecurityStage(SENSE/MASK/WATERMARK/AUDIT) · SecurityResult
 │   │              PolicyRevision · PolicyRevisionRecord · PolicyStatus(DRAFT/PUBLISHED/SUPERSEDED/DISABLED)
 │   ├── spi/       PolicyStore（台账读写口）
@@ -32,12 +32,12 @@ z-biz-security/
 │   │              PolicyLedgerService（台账：发布/回滚/停用/装载）· PersistentPolicyStore
 │   ├── mapper/    SecurityPolicyMapper
 │   └── support/   BuiltinSecurityPolicies（5 个内置场景）· InMemoryPolicyStore
-├── z-biz-security-starter/       编排引擎装配（仅此一处）+ 本域数据源（自足带走，3 例）
-│   └── config/    BizSecurityStarterAutoConfiguration · BizSecurityModuleDataSource（双包 @MapperScan）
+├── z-security-starter/       编排引擎装配（仅此一处）+ 本域数据源（自足带走，3 例）
+│   └── config/    SecurityStarterAutoConfiguration · SecurityModuleDataSource（双包 @MapperScan）
 │                  · PolicyBootstrap（启动装载）
-└── z-biz-security-web/           管控面部署：依赖 starter，只管 REST + 健康检查（23 例）
-    ├── config/    BizSecurityAutoConfiguration（健康检查）· BizSecurityHealthIndicator
-    └── api/       SecurityPipelineController · SecurityPolicyAdminController · BizSecurityHealthController
+└── z-security-web/           管控面部署：依赖 starter，只管 REST + 健康检查（23 例）
+    ├── config/    SecurityAutoConfiguration（健康检查）· SecurityHealthIndicator
+    └── api/       SecurityPipelineController · SecurityPolicyAdminController · SecurityHealthController
 ```
 
 三条结构约束：
@@ -73,7 +73,7 @@ z-biz-security/
 |---|---|---|
 | 识别失败 ⇒ 不拦 | 识别引擎挂掉等于防护失效 | 生产应配「识别不可用 ⇒ fail-close」开关 |
 | 盲水印不带操作人/单号 | 只能反查追踪码 | 靠 traceId 回查 z-audit 台账 |
-| 策略表只有 `z_biz_security_policy` 一张 | 台账不含审批流 | 审批 M3 |
+| 策略表只有 `z_security_policy` 一张 | 台账不含审批流 | 审批 M3 |
 
 ## 5. 相关文档
 

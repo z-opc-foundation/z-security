@@ -20,14 +20,14 @@
     </parent>
 
     <groupId>com.zifang</groupId>
-    <artifactId>z-biz-security</artifactId>
+    <artifactId>z-security</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>数据安全域编排 :: root</name>
     <description>数据安全域编排层：安全策略（识别→脱敏→水印→审计四段流水线）+ 对外防护入口</description>
 
-    <url>https://github.com/z-opc-foundation/z-biz-security</url>
+    <url>https://github.com/z-opc-foundation/z-security</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -49,16 +49,16 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/z-opc-foundation/z-biz-security.git</connection>
-        <developerConnection>scm:git:git@github.com:z-opc-foundation/z-biz-security.git</developerConnection>
-        <url>https://github.com/z-opc-foundation/z-biz-security</url>
+        <connection>scm:git:https://github.com/z-opc-foundation/z-security.git</connection>
+        <developerConnection>scm:git:git@github.com:z-opc-foundation/z-security.git</developerConnection>
+        <url>https://github.com/z-opc-foundation/z-security</url>
         <tag>HEAD</tag>
     </scm>
 
     <modules>
-        <module>z-biz-security-core</module>
-        <module>z-biz-security-starter</module>
-        <module>z-biz-security-web</module>
+        <module>z-security-core</module>
+        <module>z-security-starter</module>
+        <module>z-security-web</module>
     </modules>
 
     <properties>
@@ -90,22 +90,22 @@
             <!-- 自家 reactor 坐标钉本仓版本（写 ${revision}）。 -->
             <dependency>
                 <groupId>com.zifang</groupId>
-                <artifactId>z-biz-security</artifactId>
+                <artifactId>z-security</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.zifang</groupId>
-                <artifactId>z-biz-security-core</artifactId>
+                <artifactId>z-security-core</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.zifang</groupId>
-                <artifactId>z-biz-security-starter</artifactId>
+                <artifactId>z-security-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.zifang</groupId>
-                <artifactId>z-biz-security-web</artifactId>
+                <artifactId>z-security-web</artifactId>
                 <version>${revision}</version>
             </dependency>
             <!-- 族内依赖钉版本（就近 DM，z-boot-parent 接入面 pin 未收录新族坐标）。 -->

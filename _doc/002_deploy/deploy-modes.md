@@ -17,19 +17,19 @@
 
 ## 模式 A：同进程直写（当前唯一可完整落地的形态）
 
-- 编排层 starter **自足**装配 `BizSecurityModuleDataSource`（双包 `@MapperScan`：
+- 编排层 starter **自足**装配 `SecurityModuleDataSource`（双包 `@MapperScan`：
   `biz.security.core.mapper` + `audit.core.mapper` 绑**本域** sqlSessionFactory）
   ⇒ `PersistentAuditStore` 直写 `z_audit_event`，与策略台账同库。
 - z-audit 服务可以**不部署**；若部署，只当查询面 / 打锚点 / 校验面，**绝不能再开写**。
 - 配置（开发 / 测试直连模式）：
 
   ```properties
-  z.base.db.bizsecurity.url=jdbc:h2:mem:...        # 或测试库
-  z.base.db.bizsecurity.username=sa
-  z.base.db.bizsecurity.password=
+  z.base.db.security.url=jdbc:h2:mem:...        # 或测试库
+  z.base.db.security.username=sa
+  z.base.db.security.password=
   ```
 
-  生产口径仍是 MySQL 键名模式 `z.base.db.bizsecurity.*`（`ModuleDataSourceTemplate`）。
+  生产口径仍是 MySQL 键名模式 `z.base.db.security.*`（`ModuleDataSourceTemplate`）。
 
 - 单写者归属：**编排层进程**。验收：`GET /z-team/api/audit/chain/verify` 完整 + 锚点校验通过。
 
@@ -74,8 +74,8 @@
 
 | 关注点 | 位置 |
 |---|---|
-| 编排层数据源 + 双包 `@MapperScan` | `z-biz-security-starter/.../BizSecurityModuleDataSource` |
-| SEC 行落库 Sink（唯一出口） | `z-biz-security-starter/.../BizSecurityStarterAutoConfiguration#persistentAuditStore` |
+| 编排层数据源 + 双包 `@MapperScan` | `z-security-starter/.../SecurityModuleDataSource` |
+| SEC 行落库 Sink（唯一出口） | `z-security-starter/.../SecurityStarterAutoConfiguration#persistentAuditStore` |
 | WM 行 HTTP 出口（已支持分进程） | `z-watermark-web/.../client/AuditTraceHttpClient` + `z.watermark.audit-base-url` |
 | z-audit 单写者声明（HTTP 面） | `z-audit/README.md` REST 端点段 |
 | 链尾重载（重启不分叉） | `z-audit-starter/.../AuditChainTailLoader` |

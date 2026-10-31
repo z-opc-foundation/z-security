@@ -1,24 +1,24 @@
-# z-biz-security
+# z-security
 
 > **数据安全域编排层** —— 场景 → 策略 → **识别 → 脱敏 → 水印 → 审计** 四段流水线。
 > 边界一句话：**只做编排与拦截判定，不自己实现四个引擎的算法。**
 
 安全线四层能力栈的**编排层**（业务方只报场景码）。同族：`z-sense` · `z-mask` · `z-watermark` · `z-audit`。
 
-立项文档：lead `002_项目需求/001_特性需求/015_z-biz-security_数据安全线`。
+立项文档：lead `002_项目需求/001_特性需求/015_z-security_数据安全线`。
 
 ## 📋 基本信息
 
 | 项 | 值 |
 |---|---|
 | 层 | **L1 业务编排仓**（`groupId=com.zifang`，内部件口径，同 z-biz） |
-| 坐标 | `com.zifang:z-biz-security`，版本 `1.0.0` |
+| 坐标 | `com.zifang:z-security`，版本 `1.0.0` |
 | parent | `io.github.yuku123:z-boot-parent:1.2.0`（Java 17 / Spring Boot 3.3.13 火车） |
-| 包名 | `com.zifang.z.biz.security.core.*` |
+| 包名 | `com.zifang.z.security.core.*` |
 | 依赖 | `z-sense-core` · `z-mask-core` · `z-watermark-core` · `z-audit-core`（**只依赖 core，不拖 web / starter 进本 JVM**） |
 | 端口 | 8098 |
 | 发布 | **不发 Maven Central**（`maven.deploy.skip=true`，同 z-biz） |
-| 模块 | `z-biz-security-core` · `z-biz-security-starter` · `z-biz-security-web` |
+| 模块 | `z-security-core` · `z-security-starter` · `z-security-web` |
 
 ## 🎯 能力清单
 
@@ -40,8 +40,8 @@
 | **★★ 溯源闭环**（追踪码单一来源 + WM/SEC 两条留痕 + 三态反查） | ✅ M2 #22 | `service/SecurityPipeline` · `service/LocalAuditTraceAdapter` |
 | **★ 追踪码单一来源**（结果 ≡ 载荷 ≡ 审计 ≡ 台账） | ✅ M2 #22 | `SecurityPipeline#resolveTraceId` |
 | **★ 不重复记账**（`WM:<traceId>` 水印行 + `SEC:<traceId>` 处理行） | ✅ M2 #22 | 两个幂等键各司其职，不撞同一行 |
-| **★ 审计真落库**（早先 `new AuditService()` 只算链） | ✅ M2 #22 | `web/config/BizSecurityAutoConfiguration` → `PersistentAuditStore` |
-| 域内 DDL | ✅ M2 | `_doc/002_deploy/init.sql`（`z_biz_security_policy` + `z_audit_event` **副本**） |
+| **★ 审计真落库**（早先 `new AuditService()` 只算链） | ✅ M2 #22 | `web/config/SecurityAutoConfiguration` → `PersistentAuditStore` |
+| 域内 DDL | ✅ M2 | `_doc/002_deploy/init.sql`（`z_security_policy` + `z_audit_event` **副本**） |
 
 ## 🔑 核心口径
 
@@ -102,7 +102,7 @@
 M1 的策略写死在代码里 ⇒ 改阈值要发版、无历史、无回滚。本轮把策略变成**台账**。
 
 ```
-z_biz_security_policy（表）
+z_security_policy（表）
   ├─ policy_id + scene + revision（版本号，只增不减）
   ├─ status：DRAFT / PUBLISHED / SUPERSEDED / DISABLED
   ├─ stages / watermark_type / block_threshold / mask_policy_set_id / enabled
@@ -234,21 +234,21 @@ MaskResult masked = (sense != null)
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| POST | `/z-team/api/biz/security/process` | 跑一条流水线（按场景码） |
-| GET | `/z-team/api/biz/security/policies?scene=...` | 查某场景的策略 |
-| GET | `/z-team/api/biz/security/scenes` | 列全部已登记场景 |
-| **POST** | `/z-team/api/biz/security/policy/publish` | **发布一版策略**（新版本 + 取代旧版 + 热改生效） |
-| **POST** | `/z-team/api/biz/security/policy/rollback` | **回滚到历史版本**（以新版本号重发老内容） |
-| **POST** | `/z-team/api/biz/security/policy/disable` | **停用某场景**（该场景走兜底） |
-| **GET** | `/z-team/api/biz/security/policy/ledger` | **台账全量查询**（所有场景的所有版本） |
-| **GET** | `/z-team/api/biz/security/policy/published` | 当前生效策略视图 |
-| **POST** | `/z-team/api/biz/security/policy/refresh` | 手动热改刷新（改了库没发版时兜一把） |
-| GET | `/api/biz/security/health` | 健康检查（**无 /z-team 前缀**） |
+| POST | `/z-team/api/security/process` | 跑一条流水线（按场景码） |
+| GET | `/z-team/api/security/policies?scene=...` | 查某场景的策略 |
+| GET | `/z-team/api/security/scenes` | 列全部已登记场景 |
+| **POST** | `/z-team/api/security/policy/publish` | **发布一版策略**（新版本 + 取代旧版 + 热改生效） |
+| **POST** | `/z-team/api/security/policy/rollback` | **回滚到历史版本**（以新版本号重发老内容） |
+| **POST** | `/z-team/api/security/policy/disable` | **停用某场景**（该场景走兜底） |
+| **GET** | `/z-team/api/security/policy/ledger` | **台账全量查询**（所有场景的所有版本） |
+| **GET** | `/z-team/api/security/policy/published` | 当前生效策略视图 |
+| **POST** | `/z-team/api/security/policy/refresh` | 手动热改刷新（改了库没发版时兜一把） |
+| GET | `/api/security/health` | 健康检查（**无 /z-team 前缀**） |
 
 **业务方怎么用**：只报场景码 + 内容，不自己拼脱敏策略。
 
 ```http
-POST /z-team/api/biz/security/process
+POST /z-team/api/security/process
 {"scene":"CONTRACT_EXPORT","text":"...","operatorId":"op-1","tenantId":"t-9",
  "bizNo":"B-1","traceId":"trace-1","timestamp":1767225600000}
 ```
@@ -259,10 +259,10 @@ POST /z-team/api/biz/security/process
 ## 🏗️ 项目结构
 
 ```
-z-biz-security/
+z-security/
 ├── pom.xml
-├── z-biz-security-core/
-│   └── src/main/java/com/zifang/z/biz/security/core/
+├── z-security-core/
+│   └── src/main/java/com/zifang/z/security/core/
 │       ├── domain/    SecurityPolicy · SecurityStage · SecurityResult
 │       │              PolicyStatus · PolicyRevision · PolicyRevisionRecord
 │       ├── spi/       PolicyStore
@@ -270,17 +270,17 @@ z-biz-security/
 │       ├── service/   SecurityPipeline（编排）· SecurityPolicyRegistry
 │       │              PolicyLedgerService（台账）· PersistentPolicyStore
 │       └── support/   BuiltinSecurityPolicies（5 个内置场景）· InMemoryPolicyStore
-├── z-biz-security-starter/
-│   └── src/main/java/com/zifang/z/biz/security/starter/config/
-│       ├── BizSecurityStarterAutoConfiguration   编排引擎装配（仅此一处）+ @Import 本域数据源
-│       ├── BizSecurityModuleDataSource           本域数据源（双包 @MapperScan，与引擎同生共死）
+├── z-security-starter/
+│   └── src/main/java/com/zifang/z/security/starter/config/
+│       ├── SecurityStarterAutoConfiguration   编排引擎装配（仅此一处）+ @Import 本域数据源
+│       ├── SecurityModuleDataSource           本域数据源（双包 @MapperScan，与引擎同生共死）
 │       └── PolicyBootstrap                       策略启动装载（台账为空 ⇒ 播种内置）
-├── z-biz-security-web/
-│   └── src/main/java/com/zifang/z/biz/security/web/
-│       ├── config/    BizSecurityAutoConfiguration（只管部署关切：健康检查，依赖 starter）
-│       │              BizSecurityHealthIndicator
+├── z-security-web/
+│   └── src/main/java/com/zifang/z/security/web/
+│       ├── config/    SecurityAutoConfiguration（只管部署关切：健康检查，依赖 starter）
+│       │              SecurityHealthIndicator
 │       └── api/       SecurityPipelineController · SecurityPolicyAdminController
-│                      BizSecurityHealthController · ZBizSecurityWebApplication
+│                      SecurityHealthController · ZSecurityWebApplication
 └── _doc/002_deploy/init.sql    # 1 张表（幂等）
 ```
 
@@ -295,9 +295,9 @@ z-biz-security/
 
 ```bash
 export JAVA_HOME=/Users/zifang/Library/Java/JavaVirtualMachines/corretto-17.0.19/Contents/Home
-mvn -f z-biz-security-core/pom.xml test       # 70 例
-mvn -f z-biz-security-starter/pom.xml test    # 3 例（H2 真落库）
-mvn -f z-biz-security-web/pom.xml test        # 23 例（H2 + 真 HTTP）
+mvn -f z-security-core/pom.xml test       # 70 例
+mvn -f z-security-starter/pom.xml test    # 3 例（H2 真落库）
+mvn -f z-security-web/pom.xml test        # 23 例（H2 + 真 HTTP）
 ```
 
 > **CI**：push / PR 自动跑 GitHub Actions（`.github/workflows/ci.yml`：JDK 17 + `mvn -B -ntp verify`）。
@@ -366,7 +366,7 @@ Spring 侧有容错；本仓 web 的 imports 曾有真实斜杠笔误且管控�
 - [`_doc/001_arch/`](_doc/001_arch/) — 架构与不变式：
   - [`00-overview.md`](_doc/001_arch/00-overview.md) — 总体设计（四段流水线、只依赖四仓 core、注册表/台账双权威源、十二条不变式含「台账读不出绝不清空注册表」、已知边界）。
 - [`_doc/002_deploy/`](_doc/002_deploy/) — 部署资产与初始化 SQL：
-  - [`init.sql`](_doc/002_deploy/init.sql) — 策略台账表 `z_biz_security_policy`（幂等）。
+  - [`init.sql`](_doc/002_deploy/init.sql) — 策略台账表 `z_security_policy`（幂等）。
   - [`deploy-modes.md`](_doc/002_deploy/deploy-modes.md) — 部署三模式（同进程直写 / 分进程 HTTP / 独立审计域：单写者归属、配置键、防链分叉禁配清单、代码现状与缺口）。
 - [`_doc/005_testing/`](_doc/005_testing/) — 验收复跑：
   - [`001_验收复跑.md`](_doc/005_testing/001_验收复跑.md) — 五仓复跑命令、实测读数、已知边界与生产执行清单。

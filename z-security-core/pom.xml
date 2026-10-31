@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.zifang</groupId>
+        <artifactId>z-security</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>z-security-core</artifactId>
+    <name>数据安全域编排 :: core</name>
+    <packaging>jar</packaging>
+
+    <description>数据安全域编排层：安全策略（识别→脱敏→水印→审计四段流水线）+ 对外防护入口（core：领域模型 + 领域服务 + SPI 出口，**业务方不直接 import**）</description>
+
+    <dependencies>
+        <!-- MyBatis-Plus：Mapper（@MapperScan 绑本域 sqlSessionFactory）+ 领域持久化。
+             版本由 parent(z-boot-parent) 的 mybatis-plus.version 下发。 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+        </dependency>
+        <!-- Spring 只作为容器面（core 不含 @ComponentScan，不自带启动器）。 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 日志门面（log4j-api）：审计与扫描要打日志。provided 作用域，实现由宿主提供；
+             版本由 parent 下发（组织口径：日志后端用 log4j2）。 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 安全域编排层：识别 → 脱敏 → 水印 → 审计 四段流水线各取一个 core，
+             只依赖各仓的 core（不拖 web / 数据源 / 任何 starter 进本 JVM）。 -->
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-sense-core</artifactId>
+            <version>${z-sense.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-mask-core</artifactId>
+            <version>${z-mask.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-watermark-core</artifactId>
+            <version>${z-watermark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yuku123</groupId>
+            <artifactId>z-audit-core</artifactId>
+            <version>${z-audit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 本地夹具库：DDL 幂等与接口可路由全部在 H2 上跑，不连任何真实库。 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

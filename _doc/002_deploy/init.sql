@@ -1,5 +1,5 @@
 -- =====================================================================
--- z-biz-security 数据安全域编排层 —— DDL（**幂等**，可重复执行）
+-- z-security 数据安全域编排层 —— DDL（**幂等**，可重复执行）
 --
 -- 目标库：生产 `oc` 库（与 z-biz / z-trade 共用单库）
 -- 字符集：utf8mb4（执行前确认）
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS z_audit_event (
 -- 幂等键：event_id 唯一 ⇒ 同一追踪码的水印溯源行重放只留一条（不重复记账）。
 
 
-CREATE TABLE IF NOT EXISTS z_biz_security_policy (
+CREATE TABLE IF NOT EXISTS z_security_policy (
     id                 BIGINT       NOT NULL AUTO_INCREMENT,
     policy_id          VARCHAR(64)  NOT NULL COMMENT '策略 ID（同一策略的多版本共享）',
     scene              VARCHAR(64)  NOT NULL COMMENT '业务场景码（如 CONTRACT_EXPORT）',
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS z_biz_security_policy (
     change_reason      VARCHAR(512) DEFAULT NULL COMMENT '变更原因（合规要求：为什么改）',
     operator_id        VARCHAR(64)  DEFAULT NULL COMMENT '操作人（合规要求：谁改的）',
     created_at         BIGINT       NOT NULL COMMENT '创建时刻（epoch 毫秒）',
-    CONSTRAINT pk_z_biz_security_policy PRIMARY KEY (id)
+    CONSTRAINT pk_z_security_policy PRIMARY KEY (id)
 );
 
 -- ★ 同一策略的版本号唯一 ⇒ 重复发布同一版本号会被数据库挡住。
