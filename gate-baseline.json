@@ -1,0 +1,11 @@
+{
+ "z-security": {
+  "bypass": 0,
+  "up": 0,
+  "cycle": 0,
+  "modrole": 0,
+  "skip": 0,
+  "conflict": 0,
+  "xsame": 0
+ }
+}

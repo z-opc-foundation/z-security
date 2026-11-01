@@ -1,0 +1,81 @@
+# 架构守门（arch gate）：棘轮基线，硬缺陷只许变好不许变坏。
+#
+# 原理：
+#   1. 用 unit-model 的静态抽取器扫本仓 → arch.json
+#   2. 与 gate-baseline.json（入库的基线）对比每类硬缺陷数
+#   3. 新增 ⇒ exit 1 挡合入；减少 ⇒ 提示跑 --update 收紧基线
+#
+# 基线更新流程（人工触发，PR 里 reviewers 可查 diff）：
+#   python3 batch_extract.py <workspace> /tmp/arch z-security
+#   python3 arch_gate.py /tmp/arch --update
+#   把新的 gate-baseline.json 随整改 PR 一起提交。
+name: arch-gate
+
+on:
+  push:
+    branches: [main]
+    paths: ['**/*.java', '**/pom.xml', 'gate-baseline.json']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: architecture ratchet gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 抽取器与守门人从 lead 仓取（单文件、零依赖，pin 到主分支）
+      - name: Fetch gate tooling
+        run: |
+          mkdir -p .arch-gate
+          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/extract_java_arch.py" -o .arch-gate/extract_java_arch.py
+          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/batch_extract.py" -o .arch-gate/batch_extract.py
+          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/arch_gate.py" -o .arch-gate/arch_gate.py
+
+      # 本仓是单仓抽取（batch_extract 只处理 z-security 目录本身）
+      - name: Extract architecture
+        run: |
+          python3 .arch-gate/batch_extract.py . /tmp/arch z-security || true
+          # batch_extract 期望「仓目录含 .git」——直接用 extract+gate 内联模式：
+          python3 - <<'PY'
+          import io, json, os, sys
+          sys.path.insert(0, ".arch-gate")
+          import extract_java_arch as E
+          units, by_service = E.scan(".")
+          edges, layer, viol, role_of = E.build(units, by_service, ".")
+          mgraph, mroles = E.scan_maven_modules(".")
+          for cyc in E.find_module_cycles(mgraph):
+              viol.append({"level": "err", "kind": "cycle",
+                           "msg": "模块依赖环：%s" % " → ".join(cyc),
+                           "f": None, "t": None, "cycle": cyc})
+          viol.extend(E.module_role_violations(mgraph, mroles))
+          out = {"repo": "z-security", "units": {}, "layers": layer,
+                 "edges": edges, "violations": viol}
+          for k, u in units.items():
+              out["units"][k] = {"svc": u["svc"], "cls": u["cls"],
+                                 "role": u["role"], "layer": layer[k],
+                                 "annos": u["annos"], "path": u["path"],
+                                 "fields": u["fields"], "methods": u["methods"],
+                                 "calls": u["calls"], "topics": u["topics"]}
+          os.makedirs("/tmp/arch", exist_ok=True)
+          with io.open("/tmp/arch/z-security.arch.json", "w", encoding="utf-8") as f:
+              json.dump(out, f, ensure_ascii=False)
+          print("units", len(units), "edges", len(edges), "violations", len(viol))
+          PY
+
+      - name: Ratchet gate
+        run: python3 .arch-gate/arch_gate.py /tmp/arch
+
+      - name: Upload arch snapshot (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-json
+          path: /tmp/arch/
+          retention-days: 7
