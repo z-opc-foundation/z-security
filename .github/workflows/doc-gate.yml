@@ -1,0 +1,41 @@
+# 文档收口守门（doc gate）：按 lead《002_项目文档收口规范》查本仓。
+#
+# 权威尺子 vendored 在 _doc/003_script/doc-gate/（从 z-boot 复制，更新走 PR 同步）：
+#   doc_audit.py   —— R1~R13 收口合规（桶编号 / 命名 / 断链 / 运行态 / README 体量）
+#   depth_check.py —— 补 R6 盲区（按目录深度上溯仓根的写法在搬桶后断链）
+# 规范正文：z-opc-foundation-lead/008_组织规范/002_项目文档收口规范.md
+#
+# 样板说明：本 workflow 是「各仓接入 doc-gate」的样板（2026-11-01 定规）。
+# 其他仓照抄本文件即可；z-boot 侧另有一份 reusable 形态的 doc-gate.yml。
+name: doc-gate
+
+on:
+  push:
+    branches: [main]
+    paths: ['**/*.md', '**/*.py', '**/*.sh', '**/*.sql', 'README.md', '.gitignore', '_doc/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: doc audit (lead 002 规范)
+    runs-on: ubuntu-latest
+    steps:
+      # ⚠ 必须检出为 <ws>/z-security 子目录：尺子的 ORG 取「仓的父目录」，
+      #   再拼仓名定位仓库。GitHub runner 默认把仓铺在 workspace 根 ⇒ 对不上形状。
+      - uses: actions/checkout@v4
+        with:
+          path: z-security
+
+      # 单仓模式：传本仓名，尺子只扫本仓。
+      # fail-closed：仓缺 .git 或 git 调用失败都会非零退出，不会假绿。
+      - name: doc_audit
+        run: python3 z-security/_doc/003_script/doc-gate/doc_audit.py z-security
+
+      - name: depth_check
+        run: python3 z-security/_doc/003_script/doc-gate/depth_check.py z-security

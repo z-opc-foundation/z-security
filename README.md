@@ -367,6 +367,9 @@ Spring 侧有容错；本仓 web 的 imports 曾有真实斜杠笔误且管控�
   - [`00-overview.md`](_doc/001_arch/00-overview.md) — 总体设计（四段流水线、只依赖四仓 core、注册表/台账双权威源、十二条不变式含「台账读不出绝不清空注册表」、已知边界）。
 - [`_doc/002_deploy/`](_doc/002_deploy/) — 部署资产与初始化 SQL：
   - [`init.sql`](_doc/002_deploy/init.sql) — 策略台账表 `z_security_policy`（幂等）。
-  - [`deploy-modes.md`](_doc/002_deploy/deploy-modes.md) — 部署三模式（同进程直写 / 分进程 HTTP / 独立审计域：单写者归属、配置键、防链分叉禁配清单、代码现状与缺口）。
+  - [`00-deploy-modes.md`](_doc/002_deploy/00-deploy-modes.md) — 部署三模式（同进程直写 / 分进程 HTTP / 独立审计域：单写者归属、配置键、防链分叉禁配清单、代码现状与缺口）。
 - [`_doc/005_testing/`](_doc/005_testing/) — 验收复跑：
   - [`001_验收复跑.md`](_doc/005_testing/001_验收复跑.md) — 五仓复跑命令、实测读数、已知边界与生产执行清单。
+- [`_doc/003_script/`](_doc/003_script/) — 仓内工具脚本：
+  - [`arch-gate/`](_doc/003_script/arch-gate/) — 架构棘轮守门人（CI 用，工具 + 基线 gate-baseline.json）。
+  - [`vite-safe-empty/`](_doc/003_script/vite-safe-empty/) — vite 防误删 outDir 插件（只移不删，绕沙箱批量删除闸）。

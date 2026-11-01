@@ -7,7 +7,7 @@
 #
 # 基线更新流程（人工触发，PR 里 reviewers 可查 diff）：
 #   python3 batch_extract.py <workspace> /tmp/arch z-security
-#   python3 arch_gate.py /tmp/arch --baseline _doc/skills/arch-gate/gate-baseline.json --update
+#   python3 arch_gate.py /tmp/arch --baseline _doc/003_script/arch-gate/gate-baseline.json --update
 #   把新的 gate-baseline.json 随整改 PR 一起提交。
 name: arch-gate
 
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ⚠ 工具 vendored 在 _doc/skills/arch-gate/（不跨仓 curl——lead 仓 private 且
+      # ⚠ 工具 vendored 在 _doc/003_script/arch-gate/（不跨仓 curl——lead 仓 private 且
       #   URL 中文路径编码踩过 404）。工具更新走 PR 同步。
 
       # 单仓内联抽取：scan → build → 模块图 → arch.json
@@ -38,7 +38,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import io, json, os, sys
-          sys.path.insert(0, "_doc/skills/arch-gate")
+          sys.path.insert(0, "_doc/003_script/arch-gate")
           import extract_java_arch as E
           units, by_service = E.scan(".")
           edges, layer, viol, role_of = E.build(units, by_service, ".")
@@ -66,7 +66,7 @@ jobs:
       #   默认逻辑会在 arch_dir（/tmp/arch）里找基线，找不到就静默走 --init
       #   ⇒ 棘轮永远从零开始、永远绿灯。曾以此假绿跑过若干轮，修复于 2026-11-01。
       - name: Ratchet gate
-        run: python3 _doc/skills/arch-gate/arch_gate.py /tmp/arch --baseline _doc/skills/arch-gate/gate-baseline.json
+        run: python3 _doc/003_script/arch-gate/arch_gate.py /tmp/arch --baseline _doc/003_script/arch-gate/gate-baseline.json
 
       - name: Upload arch snapshot (on failure)
         if: failure()
