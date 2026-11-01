@@ -30,22 +30,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 抽取器与守门人从 lead 仓取（单文件、零依赖，pin 到主分支）
-      - name: Fetch gate tooling
-        run: |
-          mkdir -p .arch-gate
-          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/extract_java_arch.py" -o .arch-gate/extract_java_arch.py
-          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/batch_extract.py" -o .arch-gate/batch_extract.py
-          curl -fsSL "https://raw.githubusercontent.com/z-opc-foundation/z-opc-foundation-lead/main/003_%E8%BE%85%E5%8A%A9%E8%83%BD%E5%8A%9B/unit-model-demo/arch_gate.py" -o .arch-gate/arch_gate.py
+      # ⚠ 工具 vendored 在 tools/arch-gate/（不跨仓 curl——lead 仓 private 且
+      #   URL 中文路径编码踩过 404）。工具更新走 PR 同步。
 
-      # 本仓是单仓抽取（batch_extract 只处理 z-security 目录本身）
+      # 单仓内联抽取：scan → build → 模块图 → arch.json
       - name: Extract architecture
         run: |
-          python3 .arch-gate/batch_extract.py . /tmp/arch z-security || true
-          # batch_extract 期望「仓目录含 .git」——直接用 extract+gate 内联模式：
           python3 - <<'PY'
           import io, json, os, sys
-          sys.path.insert(0, ".arch-gate")
+          sys.path.insert(0, "tools/arch-gate")
           import extract_java_arch as E
           units, by_service = E.scan(".")
           edges, layer, viol, role_of = E.build(units, by_service, ".")
@@ -70,7 +63,7 @@ jobs:
           PY
 
       - name: Ratchet gate
-        run: python3 .arch-gate/arch_gate.py /tmp/arch
+        run: python3 tools/arch-gate/arch_gate.py /tmp/arch
 
       - name: Upload arch snapshot (on failure)
         if: failure()
