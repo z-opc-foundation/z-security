@@ -11,9 +11,13 @@
   · 基线只进不退 ⇒ 架构债单调递减，整改成果被永久锁定
 
 用法：
-  python3 arch_gate.py <arch_dir>                    # 校验（CI 模式）
-  python3 arch_gate.py <arch_dir> --update           # 整改后收紧基线
-  python3 arch_gate.py <arch_dir> --init             # 首次建立基线
+  python3 arch_gate.py <arch_dir>                                # 校验（CI 模式）
+  python3 arch_gate.py <arch_dir> --update                       # 整改后收紧基线
+  python3 arch_gate.py <arch_dir> --init                         # 首次建立基线
+  python3 arch_gate.py <arch_dir> --baseline <path>              # 显式指定基线文件位置
+                                                                   （CI 里必须用：默认在
+                                                                    arch_dir 找不到基线会
+                                                                    静默 --init ⇒ 棘轮假绿）
 """
 import io
 import json
@@ -46,6 +50,8 @@ def main():
     update = "--update" in sys.argv
     init = "--init" in sys.argv
     baseline_path = os.path.join(d, "gate-baseline.json")
+    if "--baseline" in sys.argv:
+        baseline_path = sys.argv[sys.argv.index("--baseline") + 1]
 
     cur = count_errors(d)
 
