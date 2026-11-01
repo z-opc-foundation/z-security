@@ -1,0 +1,14 @@
+import {defineConfig} from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+import {safeEmptyOutDir} from '../../build-tools/safe-vite-plugin.mjs'
+
+export default defineConfig({
+    plugins: [safeEmptyOutDir(), react()],
+    build: {
+        lib: {entry: {index: path.resolve(__dirname, 'src/index.js'), pages: path.resolve(__dirname, 'src/pages.js')}, formats: ['es']},
+        outDir: 'dist', emptyOutDir: false,
+        // 基座子路径必须逐条 external：rollup 的 external 是精确字符串匹配，不是前缀匹配。
+        rollupOptions: {external: ['react', 'react-dom', 'react-dom/client', 'react-router-dom', 'antd', '@ant-design/icons', 'axios', '@yuku123/z-frontend-common', '@yuku123/z-frontend-common/ui', '@yuku123/z-frontend-common/ui/echarts']},
+    },
+})

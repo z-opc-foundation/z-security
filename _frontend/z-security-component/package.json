@@ -1,0 +1,44 @@
+{
+  "name": "@yuku123/z-security-component",
+  "version": "0.1.0",
+  "description": "z-security 可复用前端组件：安全流程试跑与策略台账（process/policies；lead 005 §9）",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./pages": "./dist/pages.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@yuku123/z-frontend-common": "^1.1.7",
+    "axios": "^1.16.1"
+  },
+  "peerDependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "antd": "^6.3.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1",
+    "vite": "^6.2.6"
+  }
+}
