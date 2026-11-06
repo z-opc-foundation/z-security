@@ -13,7 +13,7 @@
 |---|---|
 | 层 | **L1 业务编排仓**（`groupId=com.zifang`，内部件口径，同 z-biz） |
 | 坐标 | `com.zifang:z-security`，版本 `1.0.0` |
-| parent | `io.github.yuku123:z-boot-parent:1.2.0`（Java 17 / Spring Boot 3.3.13 火车） |
+| parent | `io.github.yuku123:z-boot-parent:1.2.1`（Java 17 / Spring Boot 3.3.13 火车） |
 | 包名 | `com.zifang.z.security.core.*` |
 | 依赖 | `z-sense-core` · `z-mask-core` · `z-watermark-core` · `z-audit-core`（**只依赖 core，不拖 web / starter 进本 JVM**） |
 | 端口 | 8098 |
