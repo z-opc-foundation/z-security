@@ -9,6 +9,11 @@ server:
   port: ${Z_SECURITY_SERVER_PORT:8098}
 
 z:
+  # z-ext 预置埋点自登记控制台（运行期可被控制台切换扩展点实现）
+  ext:
+    console:
+      enabled: true
+      url: ${ZEXT_CONSOLE_URL:http://192.168.31.136:8888}
   base:
     db:
       bizsecurity:
