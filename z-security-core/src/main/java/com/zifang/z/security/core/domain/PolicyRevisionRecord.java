@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizModel;
 
 /**
  * 策略版本落库实体（表 {@code z_security_policy}）。
@@ -17,37 +19,52 @@ import com.baomidou.mybatisplus.annotation.TableName;
  *
  * @author zifang
  */
+@BizModel(name = "策略版本落库实体（表 z_security_policy）", module = "z-security", description = "策略版本落库实体（表 z_security_policy）。 实体与领域对象分离 ：PolicyRevision 是领域模型， 本类是持久化载体（只管字段映射）⇒ 领域模型不被 ORM 注解污染。 ⚠️ 不能用 Map ：H2 在 MODE=MySQL 下会把未加引号的 别名转成大写（AS tenantId ⇒ TENANTID）， MyBatis 映射成 Map 时直接用原始列标签做 key ⇒ 取不到值；映射成实体则正常。")
 @TableName("z_security_policy")
 public class PolicyRevisionRecord {
 
     /** 主键。 */
     @TableId(type = IdType.AUTO)
+    @BizField(name = "主键", type = BizField.FieldType.INTEGER)
     private Long id;
     /** 策略 ID。 */
+    @BizField(name = "策略 ID", type = BizField.FieldType.STRING)
     private String policyId;
     /** 场景码。 */
+    @BizField(name = "场景码", type = BizField.FieldType.STRING)
     private String scene;
     /** 版本号。 */
+    @BizField(name = "版本号", type = BizField.FieldType.INTEGER)
     private Integer revision;
     /** 状态码。 */
+    @BizField(name = "状态码", type = BizField.FieldType.STRING)
     private String status;
     /** 阶段序列（逗号分隔）。 */
+    @BizField(name = "阶段序列（逗号分隔）", type = BizField.FieldType.STRING)
     private String stages;
     /** 水印类型。 */
+    @BizField(name = "水印类型", type = BizField.FieldType.STRING)
     private String watermarkType;
     /** 拦截阈值。 */
+    @BizField(name = "拦截阈值", type = BizField.FieldType.STRING)
     private String blockThreshold;
     /** 脱敏策略集 ID。 */
+    @BizField(name = "脱敏策略集 ID", type = BizField.FieldType.STRING)
     private String maskPolicySetId;
     /** 是否启用。 */
+    @BizField(name = "是否启用", type = BizField.FieldType.BOOLEAN)
     private Boolean enabled;
     /** 备注。 */
+    @BizField(name = "备注", type = BizField.FieldType.STRING)
     private String remark;
     /** 变更原因。 */
+    @BizField(name = "变更原因", type = BizField.FieldType.STRING)
     private String changeReason;
     /** 操作人。 */
+    @BizField(name = "操作人", type = BizField.FieldType.STRING)
     private String operatorId;
     /** 创建时刻（epoch 毫秒）。 */
+    @BizField(name = "创建时刻（epoch 毫秒）", type = BizField.FieldType.INTEGER)
     private Long createdAt;
 
     public Long getId() {
@@ -162,3 +179,6 @@ public class PolicyRevisionRecord {
         this.createdAt = createdAt;
     }
 }
+
+
+

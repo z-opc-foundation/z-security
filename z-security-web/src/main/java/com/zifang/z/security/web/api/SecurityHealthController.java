@@ -1,5 +1,6 @@
 package com.zifang.z.security.web.api;
 
+import com.zifang.z.meta.api.annotation.BizApi;
 import com.zifang.z.security.web.config.SecurityHealthIndicator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ public class SecurityHealthController {
      * @return 健康信息
      */
     @GetMapping("/health")
+    @BizApi(summary = "健康检查", description = "健康检查。", tags = { "z-security" })
     public Map<String, Object> health() {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("component", healthIndicator.getComponent());
@@ -36,3 +38,6 @@ public class SecurityHealthController {
         return body;
     }
 }
+
+
+

@@ -2,6 +2,9 @@ package com.zifang.z.security.web.api;
 
 import com.zifang.z.audit.core.domain.AuditTraceResult;
 import com.zifang.z.audit.core.service.AuditTraceService;
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.security.core.domain.SecurityPolicy;
 import com.zifang.z.security.core.domain.SecurityResult;
 import com.zifang.z.security.core.service.SecurityPipeline;
@@ -64,7 +67,8 @@ public class SecurityPipelineController {
      * @return 处理结果
      */
     @PostMapping("/process")
-    public ResponseEntity<Map<String, Object>> process(@RequestBody ProcessRequest request) {
+    @BizApi(summary = "跑一条安全流水线", description = "跑一条安全流水线。", tags = { "z-security" })
+    public ResponseEntity<Map<String, Object>> process(@RequestBody @BizParam(name = "request", type = BizField.FieldType.STRING, description = "请求体", position = BizParam.Position.BODY) ProcessRequest request) {
         SecurityPipeline pipeline = pipelineProvider.getIfAvailable();
         if (pipeline == null) {
             return ResponseEntity.status(503).body(error("安全流水线未装配"));
@@ -109,7 +113,8 @@ public class SecurityPipelineController {
      * @return 反查结果
      */
     @GetMapping("/trace/{traceId}")
-    public ResponseEntity<Map<String, Object>> trace(@PathVariable String traceId) {
+    @BizApi(summary = "★ 按追踪码反查安全事件（三态：200 查到 / 404 台账没有 / 503 台账不可用）", description = "★ 按追踪码反查安全事件（三态：200 查到 / 404 台账没有 / 503 台账不可用）。 这是水印溯源闭环的查询侧：拿到泄密内容 ⇒ 提取盲水印里的追踪码 ⇒ 调本端点 ⇒ 还原「谁在什么时候把哪份单号导出去的」。", tags = { "z-security" })
+    public ResponseEntity<Map<String, Object>> trace(@PathVariable @BizParam(name = "traceId", type = BizField.FieldType.STRING, description = "追踪码", position = BizParam.Position.PATH) String traceId) {
         AuditTraceService traceService = traceServiceProvider.getIfAvailable();
         if (traceService == null) {
             return ResponseEntity.status(503).body(error("审计反查服务未装配"));
@@ -134,7 +139,8 @@ public class SecurityPipelineController {
      * @return 策略视图
      */
     @GetMapping("/policies")
-    public ResponseEntity<Map<String, Object>> policies(@RequestParam(required = false) String scene) {
+    @BizApi(summary = "查策略（看某个场景配了什么）", description = "查策略（看某个场景配了什么）。", tags = { "z-security" })
+    public ResponseEntity<Map<String, Object>> policies(@RequestParam(required = false) @BizParam(name = "scene", type = BizField.FieldType.STRING, description = "场景码（缺省 ⇒ 兜底策略）", position = BizParam.Position.QUERY) String scene) {
         SecurityPolicyRegistry registry = registryProvider.getIfAvailable();
         if (registry == null) {
             return ResponseEntity.status(503).body(error("策略注册表未装配"));
@@ -159,6 +165,7 @@ public class SecurityPipelineController {
 
     /** 列出全部已登记场景。 */
     @GetMapping("/scenes")
+    @BizApi(summary = "列出全部已登记场景", description = "列出全部已登记场景。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> scenes() {
         SecurityPolicyRegistry registry = registryProvider.getIfAvailable();
         if (registry == null) {
@@ -255,3 +262,6 @@ public class SecurityPipelineController {
         }
     }
 }
+
+
+

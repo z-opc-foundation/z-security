@@ -1,5 +1,8 @@
 package com.zifang.z.security.web.api;
 
+import com.zifang.z.meta.api.annotation.BizApi;
+import com.zifang.z.meta.api.annotation.BizField;
+import com.zifang.z.meta.api.annotation.BizParam;
 import com.zifang.z.security.core.domain.PolicyRevision;
 import com.zifang.z.security.core.domain.SecurityPolicy;
 import com.zifang.z.security.core.domain.SecurityStage;
@@ -63,7 +66,8 @@ public class SecurityPolicyAdminController {
      * @return 发布结果
      */
     @PostMapping("/publish")
-    public ResponseEntity<Map<String, Object>> publish(@RequestBody PublishRequest request) {
+    @BizApi(summary = "发布一版策略（新版本 + 取代旧版 + 热改生效）", description = "发布一版策略（新版本 + 取代旧版 + 热改生效）。", tags = { "z-security" })
+    public ResponseEntity<Map<String, Object>> publish(@RequestBody @BizParam(name = "request", type = BizField.FieldType.STRING, description = "发布请求", position = BizParam.Position.BODY) PublishRequest request) {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
             return ResponseEntity.status(503).body(error("策略台账未装配"));
@@ -103,11 +107,14 @@ public class SecurityPolicyAdminController {
      * @return 回滚结果
      */
     @PostMapping("/rollback")
+    @BizApi(summary = "回滚到某个历史版本（以新版本号重新发布老内容）", description = "回滚到某个历史版本（以新版本号重新发布老内容）。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> rollback(
-            @RequestParam String policyId,
-            @RequestParam int revision,
-            @RequestParam(required = false) String operator,
-            @RequestParam(required = false) String reason) {
+            @RequestParam @BizParam(name = "policyId", type = BizField.FieldType.STRING, description = "策略 ID", position = BizParam.Position.QUERY) String policyId,
+            @RequestParam @BizParam(name = "revision", type = BizField.FieldType.INTEGER, description = "版本号", position = BizParam.Position.QUERY) int revision,
+            @RequestParam(required = false)
+            @BizParam(name = "operator", type = BizField.FieldType.STRING, description = "操作人", position = BizParam.Position.QUERY) String operator,
+            @RequestParam(required = false)
+            @BizParam(name = "reason", type = BizField.FieldType.STRING, description = "回滚原因", position = BizParam.Position.QUERY) String reason) {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
             return ResponseEntity.status(503).body(error("策略台账未装配"));
@@ -138,10 +145,13 @@ public class SecurityPolicyAdminController {
      * @return 结果
      */
     @PostMapping("/disable")
+    @BizApi(summary = "停用某场景（该场景不再有生效策略 ⇒ 走兜底）", description = "停用某场景（该场景不再有生效策略 ⇒ 走兜底）。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> disable(
-            @RequestParam String policyId,
-            @RequestParam(required = false) String operator,
-            @RequestParam(required = false) String reason) {
+            @RequestParam @BizParam(name = "policyId", type = BizField.FieldType.STRING, description = "策略 ID", position = BizParam.Position.QUERY) String policyId,
+            @RequestParam(required = false)
+            @BizParam(name = "operator", type = BizField.FieldType.STRING, description = "操作人", position = BizParam.Position.QUERY) String operator,
+            @RequestParam(required = false)
+            @BizParam(name = "reason", type = BizField.FieldType.STRING, description = "停用原因", position = BizParam.Position.QUERY) String reason) {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
             return ResponseEntity.status(503).body(error("策略台账未装配"));
@@ -167,8 +177,10 @@ public class SecurityPolicyAdminController {
      * @return 台账视图
      */
     @GetMapping("/ledger")
+    @BizApi(summary = "台账全量查询（所有场景的所有版本）", description = "台账全量查询（所有场景的所有版本）。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> ledger(
-            @RequestParam(required = false) String policyId) {
+            @RequestParam(required = false)
+            @BizParam(name = "policyId", type = BizField.FieldType.STRING, description = "策略 ID（可空 ⇒ 全部）", position = BizParam.Position.QUERY) String policyId) {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
             return ResponseEntity.status(503).body(error("策略台账未装配"));
@@ -190,6 +202,7 @@ public class SecurityPolicyAdminController {
      * @return 生效策略视图
      */
     @GetMapping("/published")
+    @BizApi(summary = "当前生效的策略视图（场景 → 策略）", description = "当前生效的策略视图（场景 → 策略）。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> published() {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
@@ -224,6 +237,7 @@ public class SecurityPolicyAdminController {
      * @return 刷新结果
      */
     @PostMapping("/refresh")
+    @BizApi(summary = "热改刷新（把台账的生效策略刷进注册表）", description = "热改刷新（把台账的生效策略刷进注册表）。 也可以不调这个端点 —— 发布 / 回滚 / 停用后已自动刷新。 单独暴露是为了「改了库但没发版」时手动兜一把。", tags = { "z-security" })
     public ResponseEntity<Map<String, Object>> refresh() {
         PolicyLedgerService ledger = ledgerProvider.getIfAvailable();
         if (ledger == null) {
@@ -412,3 +426,6 @@ public class SecurityPolicyAdminController {
         }
     }
 }
+
+
+
